@@ -1,18 +1,22 @@
+// Import testing tools
 import { test, expect } from '@playwright/test';
 
+// One test case - checks page title
 test('has title', async ({ page }) => {
+  // Open website
   await page.goto('https://playwright.dev/');
 
-  // Expect a title "to contain" a substring.
+  // Check title contains "Playwright"
   await expect(page).toHaveTitle(/Playwright/);
 });
-
+// Another test case - checks get started link
 test('get started link', async ({ page }) => {
+  // Open website
   await page.goto('https://playwright.dev/');
 
-  // Click the get started link.
+  // Find and click the "Get started" link
   await page.getByRole('link', { name: 'Get started' }).click();
 
-  // Expects page to have a heading with the name of Installation.
+  // Check that "Installation" heading appears
   await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
 });
