@@ -26,9 +26,21 @@ Locks exact versions of installed dependencies for consistency.
 ☑️ Do not edit manually
 
 ## package.json
-Defines project metadata, dependencies, and test scripts.
+Defines project metadata, dependencies, and scripts.
 
 ☑️ You may edit (add scripts/packages)
+
+### <u>Week 2</u> exercise - package.json
+devDependencies:
+- @playwright/test: ^1.59.1
+- @types/node: ^25.6.0
+
+Meaning: 
+These are development tools.
+
+@Playwright/test - used for writing and running tests
+
+@types/node - helps TypeScript understand Node.js environment
 
 ## playwright.config.ts
 Configures Playwright settings like browsers, timeouts, and base URL.
