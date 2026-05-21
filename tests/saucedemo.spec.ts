@@ -1,22 +1,30 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('SauceDemo - Login suite', () => {
+test.describe('SauceDemo', () => {
+
+  // -----------------------------
+  // LOGIN PAGE (NO AUTH)
+  // -----------------------------
+  test.describe('Login page validation', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('Task 1 - successful login redirects to inventory page', async ({ page }) => {
+  test('successful login redirects to inventory page', async ({ page }) => {
 
     await page.getByTestId('username').fill('standard_user');
     await page.getByTestId('password').fill('secret_sauce');
 
     await page.getByRole('button', { name: 'Login' }).click();
 
-    await expect(page).toHaveURL(/inventory/);
+    await expect(
+  page,
+  'User should be redirected to inventory page after successful login'
+).toHaveURL(/inventory/);
   });
 
-  test('Task 2 - invalid login shows error message', async ({ page }) => {
+  test('invalid login shows error message', async ({ page }) => {
 
     await page.getByTestId('username').fill('standard_user');
     await page.getByTestId('password').fill('wrong_password');
@@ -29,46 +37,7 @@ test.describe('SauceDemo - Login suite', () => {
     ).toBeVisible();
   });
 
-  test('Task 3 - add product to cart shows badge 1', async ({ page }) => {
-
-  // Arrange: login
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
-
-  // Act: add product to cart
-  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
-
-  // Assert: cart badge shows 1
-  await expect(
-    page.locator('.shopping_cart_badge'),
-    'Cart badge should show 1 after adding a product'
-  ).toHaveText('1');
-});
-
-test('Task 4 - remove product from cart hides badge', async ({ page }) => {
-
-  // Arrange: login
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
-
-  // Act 1: add product
-  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
-
-  // Act 2: remove product
-  await page.getByTestId('remove-sauce-labs-backpack').click();
-
-  // Assert: cart badge disappears
-  await expect(
-    page.locator('.shopping_cart_badge'),
-    'Cart badge should not be visible after removing product'
-  ).not.toBeVisible();
-});
-
-test('Task 5 - empty and partial form validation', async ({ page }) => {
-
-  // Navigate is handled by beforeEach
+  test('empty and partial form validation', async ({ page }) => {
 
   const loginButton = page.getByRole('button', { name: 'Login' });
   const error = page.getByTestId('error');
@@ -78,7 +47,7 @@ test('Task 5 - empty and partial form validation', async ({ page }) => {
 
   await expect(
     error,
-    'Error should appear when form is empty'
+    'Error should appear when form is submitted empty'
   ).toBeVisible();
 
   // Refresh state
@@ -104,12 +73,49 @@ test('Task 5 - empty and partial form validation', async ({ page }) => {
     'Error should appear when username is missing'
   ).toBeVisible();
 });
+});
 
-test('Task 7 - rapid add remove cycles keep cart state consistent', async ({ page }) => {
+// -----------------------------
+  // AUTHENTICATED USER FLOW
+  // -----------------------------
+  test.describe('Authenticated user flow', () => {
 
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+
+      await page.getByTestId('username').fill('standard_user');
+      await page.getByTestId('password').fill('secret_sauce');
+      await page.getByRole('button', { name: 'Login' }).click();
+    });
+
+  test('add product to cart shows badge 1', async ({ page }) => {
+
+  // Act: add product to cart
+  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
+
+  // Assert: cart badge shows 1
+  await expect(
+    page.locator('.shopping_cart_badge'),
+    'Cart badge should show 1 after adding a product to cart'
+  ).toHaveText('1');
+});
+
+test('remove product from cart hides badge', async ({ page }) => {
+
+  // Act 1: add product
+  await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
+
+  // Act 2: remove product
+  await page.getByTestId('remove-sauce-labs-backpack').click();
+
+  // Assert: cart badge disappears
+  await expect(
+    page.locator('.shopping_cart_badge'),
+    'Cart badge should disappear after removing product from cart'
+  ).not.toBeVisible();
+});
+
+test('rapid add remove cycles keep cart state consistent', async ({ page }) => {
 
   const addButton = page.getByTestId('add-to-cart-sauce-labs-backpack');
 
@@ -119,17 +125,15 @@ test('Task 7 - rapid add remove cycles keep cart state consistent', async ({ pag
 
   await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
 
-  await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+  await expect(
+    page.locator('.shopping_cart_badge'),
+'Cart badge should remain 1 after rapid add/remove cycles'
+).toHaveText('1');
   // Observation: SauceDemo cart is designed as a single-instance model per product.
 // Items toggle between 'Add to cart' and 'Remove' states; quantity control is not supported.
 });
 
 test('Bonus - cart badge updates correctly when adding and removing multiple products', async ({ page }) => {
-
-  // Arrange: login
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
 
   // Act: add 3 different products
   await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
@@ -139,7 +143,7 @@ test('Bonus - cart badge updates correctly when adding and removing multiple pro
   // Assert: badge shows 3
   await expect(
     page.locator('.shopping_cart_badge'),
-    'Cart badge should show 3 items after adding 3 products'
+    'Cart badge should show 3 items after adding 3 products to cart'
   ).toHaveText('3');
 
   // Act: remove 1 product
@@ -148,16 +152,11 @@ test('Bonus - cart badge updates correctly when adding and removing multiple pro
   // Assert: badge shows 2
   await expect(
     page.locator('.shopping_cart_badge'),
-    'Cart badge should show 2 items after removing one product'
+    'Cart badge should show 2 items after removing one product from cart'
   ).toHaveText('2');
 });
 
 test('Sorting - price low to high changes product order', async ({ page }) => {
-
-  // Arrange: login
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
 
   // Capture first product BEFORE sorting
   const firstProductBefore = await page
@@ -177,22 +176,19 @@ test('Sorting - price low to high changes product order', async ({ page }) => {
   // Assert: order has changed
   expect(
     firstProductBefore,
-    'First product should change after sorting low to high'
+    'Product order should change after applying low-to-high price sorting'
   ).not.toBe(firstProductAfter);
 });
 
 test('Cart persistence after page refresh', async ({ page }) => {
 
-  // Arrange: login
-  await page.getByTestId('username').fill('standard_user');
-  await page.getByTestId('password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
-
   // Act: add product to cart
   await page.getByTestId('add-to-cart-sauce-labs-backpack').click();
 
   // Assert: cart shows 1 item
-  await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+  await expect(page.locator('.shopping_cart_badge'),
+'Cart badge should show 1 item after adding a product to cart'
+).toHaveText('1');
 
   // Act: refresh page
   await page.reload();
@@ -204,4 +200,6 @@ test('Cart persistence after page refresh', async ({ page }) => {
   ).toHaveText('1');
 });
 });
+});
+
 
