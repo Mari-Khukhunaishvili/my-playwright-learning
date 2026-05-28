@@ -1,4 +1,4 @@
-// FEATURE BRANCH CHANGE
+// FEATURE BRANCH CHANGE.
 import { test, expect } from '@playwright/test';
 
 test.describe('SauceDemo', () => {
