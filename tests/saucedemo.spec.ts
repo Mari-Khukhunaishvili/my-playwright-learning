@@ -36,6 +36,7 @@ test.describe('SauceDemo', () => {
       'Error should appear for wrong credentials'
     ).toBeVisible();
   });
+  
 
   test('locked user shows locked out error message', async ({ page }) => {
 
