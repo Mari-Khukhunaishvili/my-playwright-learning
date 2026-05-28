@@ -12,7 +12,7 @@ test.describe('SauceDemo', () => {
     await page.goto('/');
   });
 
-  test.only('successful login redirects to inventory page', async ({ page }) => {
+  test('successful login redirects to inventory page', async ({ page }) => {
 
     await page.getByTestId('username').fill('standard_user');
     await page.getByTestId('password').fill('secret_sauce');
