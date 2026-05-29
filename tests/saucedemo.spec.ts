@@ -1,4 +1,3 @@
-// MAIN BRANCH CHANGE
 import { test, expect } from '@playwright/test';
 
 test.describe('SauceDemo', () => {
@@ -37,6 +36,23 @@ test.describe('SauceDemo', () => {
       'Error should appear for wrong credentials'
     ).toBeVisible();
   });
+  
+
+  test('locked user shows locked out error message', async ({ page }) => {
+
+  await page.getByTestId('username').fill('locked_out_user');
+
+  await page.getByTestId('password').fill('secret_sauce');
+
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  await expect(
+    page.getByTestId('error'),
+    'Locked out user should see the correct error message'
+  ).toHaveText(
+    'Epic sadface: Sorry, this user has been locked out.'
+  );
+});
 
   test('empty and partial form validation', async ({ page }) => {
 
